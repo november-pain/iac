@@ -1,0 +1,6 @@
+/venv/
+tf_debig.log
+/aws/
+ansible_templates
+
+
