@@ -2,4 +2,4 @@
 tf_debig.log
 /aws/
 .terraform/plugins/linux_amd64/terraform-provider-aws_v3.37.0_x5
-
+tf_debug.log
