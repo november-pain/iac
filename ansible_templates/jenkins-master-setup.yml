@@ -1,0 +1,109 @@
+---
+- hosts: "{{ passed_hosts }}"
+  become: yes
+  remote_user: ec2-user
+  become_user: root
+  tasks:
+   - name: istall required packages
+     yum:
+       name: "{{ item }}"
+       state: present
+     loop:
+       - git
+       - java-1.8.0-openjdk-devel
+       - wget
+   
+#   - name: Tell the host about our servers it might want to ssh to
+#     known_hosts:
+#       path: '/etc/ssh/known_hosts'
+#       name: 'github.com'
+#       key: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"   
+
+#   - name: Upload sudo config for key forwarding as root
+#     lineinfile:
+#       dest: /etc/sudoers.d/ssh_key_forward
+#       line: 'Defaults env_keep+=SSH_AUTH_SOCK'
+#       create: yes
+#       owner: root 
+#       group: root 
+#       mode: "0440"
+#       state: present
+#       validate: 'visudo -c -f %s'
+   
+   - name: ensure sshd service is started 
+     systemd:
+       name: sshd
+       state: started
+
+#   - name: allow ssh agent forvarding
+#     lineinfile:
+#       dest: /etc/ssh/sshd_config
+#       line: "AllowAgentForwarding yes"
+#       state: present
+#       validate: 'sshd -t -f %s'
+
+   - name: clone jenkins preconf repo
+     become: no
+     git:
+       repo: git@github.com:november-pain/jenkins-master-preconf.git
+       dest: /tmp/jenkins
+       accept_hostkey: yes
+
+   - name: setup jenkins repo
+     get_url:
+       url: https://pkg.jenkins.io/redhat/jenkins.repo
+       dest: /etc/yum.repos.d/jenkins.repo
+   
+   - name: import jenkins gpg key
+     rpm_key:
+       key: https://pkg.jenkins.io/redhat/jenkins.io.key
+       state: present
+
+   - name: install jenkins
+     yum:
+       name: jenkins
+       state: present
+ 
+   - name: stop jenkins to replace its files with preconfigured files
+     service:
+       name: jenkins
+       state: stopped
+  
+   - name: delete jenkins default dir
+     file:
+       path: /var/lib/jenkins
+       state: absent
+    
+   - name: copy previously cloned preconfigured jenkins files
+     copy:
+       remote_src: yes
+       src: /tmp/jenkins
+       dest: /var/lib
+
+   - name: set files ownership for jenkins
+     file:
+       path: /var/lib/jenkins
+       state: directory
+       recurse: yes
+       owner: jenkins
+   
+   - name: start jenkins 
+     service: 
+       name: jenkins
+       state: started
+       enabled: yes
+
+#   - name: wait until jenkins gets ready
+#     uri:
+#       url: "http://127.0.0.1:8080/cli"
+#       status_code: 200
+#     register: result
+#     until: result.status == 200
+#     retries: 30
+#     delay: 5
+
+
+
+
+
+
