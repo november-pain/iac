@@ -35,11 +35,11 @@ variable "webserver-port" {
 
 variable "dns-name" {
   type    = string
-  default = "cmcloudlab619.info."
+  default = "cmcloudlab0567.info."
 }
 
 variable "backend-bucket-name" {
   type    = string
-  default = "terraformstatefile-ubkw7qza"
+  default = "terraform-state-file-bucket-qp28r3ui"
 }
 

@@ -41,6 +41,7 @@ digraph {
 		"[root] output.url" [label = "output.url", shape = "note"]
 		"[root] provider.aws.region-master" [label = "provider.aws.region-master", shape = "diamond"]
 		"[root] provider.aws.region-worker" [label = "provider.aws.region-worker", shape = "diamond"]
+		"[root] var.backend-bucket-name" [label = "var.backend-bucket-name", shape = "note"]
 		"[root] var.dns-name" [label = "var.dns-name", shape = "note"]
 		"[root] var.external-ip" [label = "var.external-ip", shape = "note"]
 		"[root] var.instance-type" [label = "var.instance-type", shape = "note"]
@@ -64,6 +65,7 @@ digraph {
 		"[root] aws_instance.jenkins-worker-oregon" -> "[root] aws_security_group.jenkins-sg-oregon"
 		"[root] aws_instance.jenkins-worker-oregon" -> "[root] aws_subnet.subnet_1_oregon"
 		"[root] aws_instance.jenkins-worker-oregon" -> "[root] data.aws_ssm_parameter.linuxAmiOregon"
+		"[root] aws_instance.jenkins-worker-oregon" -> "[root] provisioner.remote-exec"
 		"[root] aws_instance.jenkins-worker-oregon" -> "[root] var.workers-count"
 		"[root] aws_internet_gateway.igw" -> "[root] aws_vpc.vpc_master"
 		"[root] aws_internet_gateway.igw-oregon" -> "[root] aws_vpc.vpc_master_oregon"
@@ -119,6 +121,7 @@ digraph {
 		"[root] meta.count-boundary (EachMode fixup)" -> "[root] output.jenkins-master-node-pub-ip"
 		"[root] meta.count-boundary (EachMode fixup)" -> "[root] output.jenkins-worker-pub-ips"
 		"[root] meta.count-boundary (EachMode fixup)" -> "[root] output.url"
+		"[root] meta.count-boundary (EachMode fixup)" -> "[root] var.backend-bucket-name"
 		"[root] output.alb-dns-name" -> "[root] aws_lb.application-lb"
 		"[root] output.jenkins-master-node-pub-ip" -> "[root] aws_instance.jenkins-master"
 		"[root] output.jenkins-worker-pub-ips" -> "[root] aws_instance.jenkins-worker-oregon"
@@ -135,10 +138,12 @@ digraph {
 		"[root] provider.aws.region-worker" -> "[root] var.profile"
 		"[root] provider.aws.region-worker" -> "[root] var.region-worker"
 		"[root] provisioner.local-exec (close)" -> "[root] aws_instance.jenkins-worker-oregon"
+		"[root] provisioner.remote-exec (close)" -> "[root] aws_instance.jenkins-worker-oregon"
 		"[root] root" -> "[root] meta.count-boundary (EachMode fixup)"
 		"[root] root" -> "[root] provider.aws.region-master (close)"
 		"[root] root" -> "[root] provider.aws.region-worker (close)"
 		"[root] root" -> "[root] provisioner.local-exec (close)"
+		"[root] root" -> "[root] provisioner.remote-exec (close)"
 	}
 }
 
