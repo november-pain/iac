@@ -83,7 +83,7 @@ def main(argv):
         terraform_init(tf)
 
     elif argv[0] == "deploy":
-        if len(argv) == 2 and argv[1] == "-f" or argv[1] == "--force":
+        if len(argv) == 2 and (argv[1] == "-f" or argv[1] == "--force"):
             deploy(tf, True)
         else: deploy(tf)
 
