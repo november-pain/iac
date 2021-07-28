@@ -7,6 +7,6 @@ terraform {
     region  = "us-east-1"
     profile = "default"
     key     = "terraformstatefile"
-    bucket  = "terraform-state-file-bucket-qp28r3ui"
+    bucket  = "terraform-state-file-bucket-bmpqapas"
   }
 }
