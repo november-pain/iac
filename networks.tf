@@ -38,6 +38,11 @@ data "aws_availability_zones" "azs" {
   provider = aws.region-master
   state    = "available"
 }
+# Get all available AZ's in VPC for worker region
+data "aws_availability_zones" "azs-oregon" {
+  provider = aws.region-worker
+  state    = "available"
+}
 
 # Create subnet #1 in us-east-1
 resource "aws_subnet" "subnet_1" {
@@ -57,9 +62,10 @@ resource "aws_subnet" "subnet_2" {
 
 # Create subnet in us-west-2
 resource "aws_subnet" "subnet_1_oregon" {
-  provider   = aws.region-worker
-  vpc_id     = aws_vpc.vpc_master_oregon.id
-  cidr_block = "192.168.1.0/24"
+  provider          = aws.region-worker
+  availability_zone = element(data.aws_availability_zones.azs-oregon.names, 0)
+  vpc_id            = aws_vpc.vpc_master_oregon.id
+  cidr_block        = "192.168.1.0/24"
 }
 
 # Initiate Peering conection request from us-east-1
