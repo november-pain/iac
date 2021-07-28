@@ -17,7 +17,7 @@ resource "aws_key_pair" "master-key" {
   public_key = file("~/.ssh/id_rsa.pub")
 }
 
-# create key-pair to connect to ec2 instances via ssh in us-west-1
+# create key-pair to connect to ec2 instances via ssh in us-west-2
 resource "aws_key_pair" "worker-key" {
   provider   = aws.region-worker
   key_name   = "jenkins"
@@ -43,9 +43,10 @@ resource "aws_instance" "jenkins-master" {
   }
 }
 
-# create ec2 instance in us-west-1
+# create ec2 instance in us-west-2
 resource "aws_instance" "jenkins-worker-oregon" {
   provider                    = aws.region-worker
+  availability_zone           = element(data.aws_availability_zones.azs-oregon.names, 0)
   count                       = var.workers-count
   ami                         = data.aws_ssm_parameter.linuxAmiOregon.value
   instance_type               = var.instance-type
@@ -76,3 +77,32 @@ resource "aws_instance" "jenkins-worker-oregon" {
   }
 }
 
+# Create swap volume for every worker 
+resource "aws_ebs_volume" "volume-swap" {
+  provider          = aws.region-worker
+  count             = var.workers-count
+  availability_zone = element(data.aws_availability_zones.azs-oregon.names, 0)
+  size              = 8
+  tags = {
+    Name = join("_", ["jenkins_worker_tf", count.index + 1])
+  }
+}
+
+# attach volumes to workers, create and enable swap partition 
+resource "aws_volume_attachment" "ebs_att" {
+  provider    = aws.region-worker
+  count       = var.workers-count
+  device_name = "/dev/sdh"
+  volume_id   = "${element(aws_ebs_volume.volume-swap.*.id, count.index)}"
+  instance_id = "${element(aws_instance.jenkins-worker-oregon.*.id, count.index)}"
+
+  depends_on = [aws_ebs_volume.volume-swap, aws_instance.jenkins-worker-oregon]
+
+  # tags = {
+  #  Name = join("_", ["jenkins_worker_tf", count.index + 1])
+  # }
+
+  provisioner "local-exec" {
+    command = "sleep 120; ansible-playbook --extra-vars 'passed_hosts=tag_Name_${element(aws_instance.jenkins-worker-oregon.*.tags.Name, count.index)}' ansible_templates/worker-swap.yml"
+  }
+}
