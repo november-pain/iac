@@ -1,0 +1,14 @@
+---
+- hosts: "{{ passed_hosts }}"
+  become: yes
+  remote_user: ec2-user
+  become_user: root
+  tasks:
+    - name: make swap
+      command: mkswap /dev/nvme1n1
+    
+    - name: enable swap
+      command: swapon /dev/nvme1n1
+    
+    - name: edit fstab to persist swap setting
+      command: echo "/dev/nvme1n1 none swap sw 0 0" >> /etc/fstab
