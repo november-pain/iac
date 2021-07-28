@@ -20,7 +20,7 @@ variable "external-ip" {
 
 variable "workers-count" {
   type    = number
-  default = 1
+  default = 2
 }
 
 variable "instance-type" {
@@ -35,11 +35,11 @@ variable "webserver-port" {
 
 variable "dns-name" {
   type    = string
-  default = "cmcloudlab0567.info."
+  default = "cmcloudlab1679.info."
 }
 
 variable "backend-bucket-name" {
   type    = string
-  default = "terraform-state-file-bucket-qp28r3ui"
+  default = "terraform-state-file-bucket-bmpqapas"
 }
 
